@@ -61,7 +61,7 @@ El otro desarrollador puede revisar los cambios respecto a `feat/albergue-mvp`. 
 Para reproducir el navegador con el servidor local iniciado:
 
 ```bash
-python -m pip install playwright==1.51.1
+python -m pip install playwright==1.62.0
 python -m playwright install chromium
 python test/browser-ui.py
 ```

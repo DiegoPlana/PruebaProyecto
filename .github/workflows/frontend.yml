@@ -8,7 +8,7 @@ permissions:
   contents: read
 jobs:
   browser:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -21,7 +21,7 @@ jobs:
           python-version: '3.12'
       - run: npm ci
       - run: npm run check
-      - run: python -m pip install playwright==1.51.1
+      - run: python -m pip install playwright==1.62.0
       - run: python -m playwright install --with-deps chromium
       - name: Arrancar servidor sin datos reales
         run: DATABASE_URL=postgres://unused:unused@127.0.0.1:1/unused node src/server.mjs > /tmp/santa-quiteria-ui.log 2>&1 &
