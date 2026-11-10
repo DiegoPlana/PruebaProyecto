@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Consulta el calendario de disponibilidad y solicita camas o una habitación completa sin registro.">
+  <meta name="theme-color" content="#0B201F">
+  <title>Reservas · Albergue Santa Quiteria</title>
+  <link rel="icon" href="/mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/pages.css">
+  <script src="/navigation.js" type="module"></script>
+  <script src="/app.js" type="module"></script>
+</head>
+<body class="public-site page-reservas">
+  <a href="#main" class="skip">Saltar al contenido</a>
+  <div class="dev-banner">PROYECTO EN DESARROLLO <span>· Inventario provisional. No usar para reservas reales.</span></div>
+  <header class="header site-header">
+    <a class="brand" href="/" aria-label="Santa Quiteria, inicio"><img src="/mark.svg" alt="" width="44" height="44"><span>SANTA QUITERIA<small>ALBERGUE · ALMASSORA</small></span></a>
+    <button id="menu-toggle" class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation"><span>Menú</span><span aria-hidden="true">☰</span></button>
+    <nav id="navigation" aria-label="Principal"><a href="/">Inicio</a>
+      <a href="/albergue">El albergue</a>
+      <a href="/habitaciones">Habitaciones</a>
+      <a href="/restaurante">Restaurante</a>
+      <a href="/servicios">Servicios</a>
+      <a href="/galeria">Galería</a>
+      <a href="/contacto">Contacto</a>
+      <a href="/reservas" aria-current="page" class="button small">Reservas</a></nav>
+  </header>
+  <main id="main" tabindex="-1">
+    <nav class="breadcrumb" aria-label="Ruta de navegación"><a href="/">Inicio</a><span aria-hidden="true">/</span><span>Reservas</span></nav>
+    <section class="page-intro"><p class="eyebrow">RESERVAS · ALOJAMIENTO</p><h1>Tu próxima pausa<br>empieza <em>aquí.</em></h1><p class="page-lead">Elige las fechas y las plazas que necesitas. Tu solicitud quedará pendiente de revisión; no se realiza ningún pago online.</p></section>
+<ol class="booking-steps" aria-label="Pasos para solicitar alojamiento"><li><span aria-hidden="true">01</span> Elige tus fechas</li><li><span aria-hidden="true">02</span> Encuentra tu espacio</li><li><span aria-hidden="true">03</span> Envía tu solicitud</li></ol>
+<section class="section availability-section" id="disponibilidad"><div class="booking-layout"><div class="calendar-card"><div class="calendar-top"><h3 id="month-title">Disponibilidad</h3><div><button id="prev-month" class="icon-button" aria-label="Mes anterior">←</button><button id="next-month" class="icon-button" aria-label="Mes siguiente">→</button></div></div><p class="muted" id="calendar-instruction">Selecciona la llegada y después la salida.</p><div class="weekdays" aria-hidden="true"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div><div id="calendar" class="calendar" aria-label="Calendario de disponibilidad"></div><div class="legend"><span><i class="dot free"></i>Libre</span><span><i class="dot limited"></i>Limitado</span><span><i class="dot full"></i>Completo</span></div><p class="fine">Los colores indican camas libres por noche. La disponibilidad final se comprueba para toda tu estancia.</p></div><div class="selection-card"><form id="search-form"><div class="form-grid"><label>Llegada<input id="arrival" name="arrival" type="date" required></label><label>Salida<input id="departure" name="departure" type="date" required></label><label>Personas<input name="people" type="number" min="1" max="500" value="1" required></label><label>Cómo te alojas<select name="mode"><option value="BEDS">Camas individuales</option><option value="ROOM">Habitación completa</option></select></label></div><button class="button full-width" type="submit">Consultar disponibilidad <span aria-hidden="true">→</span></button></form><div id="availability-results" class="results" aria-live="polite"><div class="empty-state"><span aria-hidden="true">⌁</span><p>Unas fechas, muchas posibilidades.</p><small>Consulta qué habitaciones y camas están libres para tu viaje.</small></div></div></div></div></section><p class="cross-link">¿Buscas un sitio en la mesa? <a href="/restaurante">Consulta los turnos del restaurante ↗</a></p>
+  </main>
+  <footer class="site-footer">
+    <div class="footer-intro"><a class="brand" href="/"><img src="/mark.svg" alt="" width="40" height="40"><span>SANTA QUITERIA<small>ALBERGUE · ALMASSORA</small></span></a><p>Un lugar para bajar el ritmo.<br><small>Proyecto DAW · Los Murlocs</small></p></div>
+    <nav class="footer-navigation" aria-label="Explorar"><a href="/">Inicio</a>
+      <a href="/albergue">El albergue</a>
+      <a href="/habitaciones">Habitaciones</a>
+      <a href="/restaurante">Restaurante</a>
+      <a href="/servicios">Servicios</a>
+      <a href="/galeria">Galería</a>
+      <a href="/contacto">Contacto</a>
+      <a href="/reservas" aria-current="page">Reservas</a></nav>
+    <div class="footer-meta"><a href="/legal.html">Privacidad y estado del proyecto</a><a href="/admin">Acceso del equipo <span aria-hidden="true">↗</span></a><p class="fine">Contenido y fotografías oficiales<br>pendientes de confirmación.</p></div>
+  </footer>
+  <dialog id="request-dialog" aria-labelledby="request-title"><div class="dialog-heading"><div><p class="eyebrow">UN PASO MÁS</p><h2 id="request-title">Tu solicitud</h2></div><button class="icon-button" data-close aria-label="Cerrar formulario">✕</button></div><div id="request-summary" class="summary"></div><form id="request-form"><div class="form-grid"><label>Nombre<input name="firstName" autocomplete="given-name" maxlength="120" required></label><label>Apellidos<input name="lastName" autocomplete="family-name" maxlength="120" required></label><label>Email<input name="email" type="email" autocomplete="email" maxlength="254" required></label><label>Teléfono<input name="phone" type="tel" autocomplete="tel" maxlength="30" pattern="[+0-9 ().\-]{7,30}" required></label></div><label>Observaciones <span class="muted">(opcional)</span><textarea name="notes" maxlength="1000" rows="3"></textarea></label><label class="checkbox-line"><input type="checkbox" required>He revisado los datos y entiendo que es una solicitud pendiente de aprobación. En esta versión usaré datos ficticios.</label><p class="fine">No se realiza ningún cobro. <a href="/legal.html" target="_blank" rel="noopener">Información de privacidad y pruebas</a>.</p><p id="request-error" role="alert" class="error"></p><button class="button full-width" type="submit">Enviar solicitud pendiente →</button></form><div id="request-success" hidden></div></dialog>
+  <div id="toast" role="status" class="toast" hidden></div>
+</body>
+</html>

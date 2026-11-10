@@ -8,6 +8,12 @@ import {fail,today} from './validation.mjs';
 import {availability,calendar,createBooking,resolveBooking,modifyBooking,checkStay,inventory,blockBeds,unblock} from './booking.mjs';
 import {restaurantAvailability,createRestaurant,resolveRestaurant,saveSlot} from './restaurant.mjs';
 const publicDir=resolve(fileURLToPath(new URL('../public/',import.meta.url)));
+// Explicit document routes only. API/authentication and unknown-path handling stay unchanged.
+const publicPages=new Map([
+ ['/', '/index.html'], ['/albergue', '/albergue.html'], ['/habitaciones', '/habitaciones.html'],
+ ['/restaurante', '/restaurante.html'], ['/servicios', '/servicios.html'], ['/galeria', '/galeria.html'],
+ ['/contacto', '/contacto.html'], ['/reservas', '/reservas.html'], ['/admin', '/admin.html']
+]);
 const production=process.env.NODE_ENV==='production';
 const origin=process.env.APP_ORIGIN || 'http://localhost:3000';
 if(production&&!origin.startsWith('https://'))throw new Error('APP_ORIGIN debe usar HTTPS en producción.');
@@ -84,7 +90,8 @@ export const server=createServer(async(req,res)=>{
   }
   if(path.startsWith('/api/'))fail(404,'Ruta no encontrada.');
   if(!['GET','HEAD'].includes(method))fail(405,'Método no permitido.');
-  const file=resolve(publicDir,'.'+decodeURIComponent(path==='/'?'/index.html':path==='/admin'?'/admin.html':path));
+  const documentPath=publicPages.get(path.replace(/\/$/,'')||'/')??path;
+  const file=resolve(publicDir,'.'+decodeURIComponent(documentPath));
   if(!file.startsWith(publicDir+sep)||!types[extname(file)])fail(404,'Página no encontrada.');
   try { const content=await readFile(file);res.writeHead(200,{'Content-Type':types[extname(file)],'Cache-Control':'no-cache'});res.end(method==='HEAD'?undefined:content); }
   catch(error){if(error.code==='ENOENT')fail(404,'Página no encontrada.');throw error;}

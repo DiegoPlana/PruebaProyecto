@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="{{description}}">
+  <meta name="theme-color" content="#0B201F">
+  <title>{{title}} · Albergue Santa Quiteria</title>
+  <link rel="icon" href="/mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/pages.css">
+  <script src="/navigation.js" type="module"></script>
+  {{scripts}}
+</head>
+<body class="public-site page-{{slug}}">
+  <a href="#main" class="skip">Saltar al contenido</a>
+  <div class="dev-banner">PROYECTO EN DESARROLLO <span>· Inventario provisional. No usar para reservas reales.</span></div>
+  <header class="header site-header">
+    <a class="brand" href="/" aria-label="Santa Quiteria, inicio"><img src="/mark.svg" alt="" width="44" height="44"><span>SANTA QUITERIA<small>ALBERGUE · ALMASSORA</small></span></a>
+    <button id="menu-toggle" class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation"><span>Menú</span><span aria-hidden="true">☰</span></button>
+    <nav id="navigation" aria-label="Principal">{{navigation}}</nav>
+  </header>
+  <main id="main" tabindex="-1"{{mainClass}}>
+    {{breadcrumb}}
+    {{content}}
+  </main>
+  <footer class="site-footer">
+    <div class="footer-intro"><a class="brand" href="/"><img src="/mark.svg" alt="" width="40" height="40"><span>SANTA QUITERIA<small>ALBERGUE · ALMASSORA</small></span></a><p>Un lugar para bajar el ritmo.<br><small>Proyecto DAW · Los Murlocs</small></p></div>
+    <nav class="footer-navigation" aria-label="Explorar">{{footerNavigation}}</nav>
+    <div class="footer-meta"><a href="/legal.html">Privacidad y estado del proyecto</a><a href="/admin">Acceso del equipo <span aria-hidden="true">↗</span></a><p class="fine">Contenido y fotografías oficiales<br>pendientes de confirmación.</p></div>
+  </footer>
+  {{dialog}}
+  <div id="toast" role="status" class="toast" hidden></div>
+</body>
+</html>
