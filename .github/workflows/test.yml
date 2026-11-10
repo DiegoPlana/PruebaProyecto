@@ -1,0 +1,41 @@
+name: Pruebas PostgreSQL
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: albergue
+          POSTGRES_PASSWORD: test-only-password
+          POSTGRES_DB: albergue_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U albergue -d albergue_test"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      DATABASE_URL: postgres://albergue:test-only-password@localhost:5432/albergue_test
+      APP_ORIGIN: http://localhost:3000
+      RUN_DB_TESTS: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - name: Verificar migraciones y seed idempotentes
+        run: |
+          npm run migrate
+          npm run migrate
+          ALLOW_DEMO_SEED=true npm run seed
+          ALLOW_DEMO_SEED=true npm run seed
