@@ -6,3 +6,6 @@ for(const folder of ['src','scripts','public','test']) for(const file of await r
  if(result.status)process.exit(result.status);
 }
 console.log('Sintaxis JavaScript comprobada.');
+
+const pages=spawnSync(process.execPath,['scripts/build-pages.mjs','--check'],{stdio:'inherit'});
+if(pages.status)process.exit(pages.status);

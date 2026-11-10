@@ -14,6 +14,12 @@ Aplicación DAW de Los Murlocs desarrollada en **DiegoPlana/PruebaProyecto**, a 
 
 No hay pagos, cuentas de visitantes ni correo real. Todos los administradores tienen el mismo rol en este incremento. Consulta los límites y siguientes tareas en [docs/ASTRA_PROGRESS.md](docs/ASTRA_PROGRESS.md).
 
+## Navegación multipágina
+
+La rama `design/santa-quiteria-multipagina` incorpora las ocho páginas independientes y el menú compartido. Para revisar esta entrega, cambia a esa rama después del clonado. Consulta [rutas, archivos, comprobaciones e integración](docs/DESIGN_NAVIGATION.md).
+
+Para editar contenido o navegación, modifica `frontend/` y ejecuta `npm run build:pages`; `public/*.html` es la salida generada. `npm run check` detecta documentos desactualizados. No se añade un framework.
+
 ## Arranque con Docker (Linux, macOS o Windows con Docker Desktop)
 
 Necesitas Git y Docker con `docker compose`.
