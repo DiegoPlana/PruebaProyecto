@@ -1,0 +1,55 @@
+<dialog id="request-dialog" aria-labelledby="request-title">
+  <div class="dialog-heading">
+    <div>
+      <p class="eyebrow">UN PASO MÁS</p>
+      <h2 id="request-title">Tu solicitud</h2>
+    </div>
+    <button class="icon-button" data-close aria-label="Cerrar formulario">✕</button>
+  </div>
+  <div id="request-summary" class="summary"></div>
+  <form id="request-form">
+    <div class="form-grid">
+      <label>
+        Nombre
+        <input name="firstName" autocomplete="given-name" maxlength="120" required />
+      </label>
+      <label>
+        Apellidos
+        <input name="lastName" autocomplete="family-name" maxlength="120" required />
+      </label>
+      <label>
+        Email
+        <input name="email" type="email" autocomplete="email" maxlength="254" required />
+      </label>
+      <label>
+        Teléfono
+        <input
+          name="phone"
+          type="tel"
+          autocomplete="tel"
+          maxlength="30"
+          pattern="[+0-9 ().\-]{7,30}"
+          required
+        />
+      </label>
+    </div>
+    <label>
+      Observaciones
+      <span class="muted">(opcional)</span>
+      <textarea name="notes" maxlength="1000" rows="3"></textarea>
+    </label>
+    <label class="checkbox-line">
+      <input type="checkbox" required />
+      He revisado los datos y entiendo que es una solicitud pendiente de aprobación. En esta versión
+      usaré datos ficticios.
+    </label>
+    <p class="fine">
+      No se realiza ningún cobro.
+      <a href="/legal.html" target="_blank" rel="noopener">Información de privacidad y pruebas</a>
+      .
+    </p>
+    <p id="request-error" role="alert" class="error"></p>
+    <button class="button full-width" type="submit">Enviar solicitud pendiente →</button>
+  </form>
+  <div id="request-success" hidden></div>
+</dialog>

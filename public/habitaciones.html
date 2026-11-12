@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Consulta el inventario de habitaciones y las modalidades de alojamiento de Santa Quiteria."
+    />
+    <meta name="theme-color" content="#0B201F" />
+    <title>Habitaciones · Albergue Santa Quiteria</title>
+    <link rel="icon" href="/mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/pages.css" />
+    <script src="/navigation.js" type="module"></script>
+    <script src="/app.js" type="module"></script>
+  </head>
+  <body class="public-site page-habitaciones">
+    <a href="#main" class="skip">Saltar al contenido</a>
+    <div class="dev-banner">
+      PROYECTO EN DESARROLLO
+      <span>· Inventario provisional. No usar para reservas reales.</span>
+    </div>
+    <header class="header site-header">
+      <a class="brand" href="/" aria-label="Santa Quiteria, inicio">
+        <img src="/mark.svg" alt="" width="44" height="44" />
+        <span>
+          SANTA QUITERIA
+          <small>ALBERGUE · ALMASSORA</small>
+        </span>
+      </a>
+      <button
+        id="menu-toggle"
+        class="menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="navigation"
+      >
+        <span>Menú</span>
+        <span aria-hidden="true">☰</span>
+      </button>
+      <nav id="navigation" aria-label="Principal">
+        <a href="/">Inicio</a>
+        <a href="/albergue">El albergue</a>
+        <a href="/habitaciones" aria-current="page">Habitaciones</a>
+        <a href="/restaurante">Restaurante</a>
+        <a href="/servicios">Servicios</a>
+        <a href="/galeria">Galería</a>
+        <a href="/contacto">Contacto</a>
+        <a href="/reservas" class="button small">Reservas</a>
+      </nav>
+    </header>
+    <main id="main" tabindex="-1" class="">
+      <nav class="breadcrumb" aria-label="Ruta de navegación">
+        <a href="/">Inicio</a>
+        <span aria-hidden="true">/</span>
+        <span>Habitaciones</span>
+      </nav>
+      <section class="page-intro">
+        <p class="eyebrow">HABITACIONES</p>
+        <h1>
+          Compartir el viaje.
+          <br />
+          Elegir el
+          <em>descanso.</em>
+        </h1>
+        <p class="page-lead">
+          Un espacio para ti o para compartir. Consulta las habitaciones del inventario y elige cómo
+          quieres alojarte.
+        </p>
+      </section>
+      <div class="page-notice">
+        <strong>Inventario provisional</strong>
+        <span>
+          Los nombres, capacidades y descripciones son datos de desarrollo. No describen
+          instalaciones verificadas.
+        </span>
+      </div>
+      <section class="section rooms-section" id="habitaciones">
+        <div id="room-cards" class="room-cards" aria-live="polite">
+          <p>Cargando habitaciones…</p>
+        </div>
+        <div class="service-strip">
+          <span>↗ Habitación completa</span>
+          <span>↗ Camas individuales</span>
+          <span>↗ Solicitud sin registro</span>
+        </div>
+      </section>
+      <section class="page-cta">
+        <div>
+          <p class="eyebrow">EL SIGUIENTE PASO</p>
+          <h2>¿Tienes tus fechas?</h2>
+          <p>Comprueba las plazas disponibles para toda tu estancia.</p>
+        </div>
+        <a class="button" href="/reservas">
+          Consultar disponibilidad
+          <span aria-hidden="true">↗</span>
+        </a>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-intro">
+        <a class="brand" href="/">
+          <img src="/mark.svg" alt="" width="40" height="40" />
+          <span>
+            SANTA QUITERIA
+            <small>ALBERGUE · ALMASSORA</small>
+          </span>
+        </a>
+        <p>
+          Un lugar para bajar el ritmo.
+          <br />
+          <small>Proyecto DAW · Los Murlocs</small>
+        </p>
+      </div>
+      <nav class="footer-navigation" aria-label="Explorar">
+        <a href="/">Inicio</a>
+        <a href="/albergue">El albergue</a>
+        <a href="/habitaciones" aria-current="page">Habitaciones</a>
+        <a href="/restaurante">Restaurante</a>
+        <a href="/servicios">Servicios</a>
+        <a href="/galeria">Galería</a>
+        <a href="/contacto">Contacto</a>
+        <a href="/reservas">Reservas</a>
+      </nav>
+      <div class="footer-meta">
+        <a href="/legal.html">Privacidad y estado del proyecto</a>
+        <a href="/admin">
+          Acceso del equipo
+          <span aria-hidden="true">↗</span>
+        </a>
+        <p class="fine">
+          Contenido y fotografías oficiales
+          <br />
+          pendientes de confirmación.
+        </p>
+      </div>
+    </footer>
+
+    <div id="toast" role="status" class="toast" hidden></div>
+  </body>
+</html>
