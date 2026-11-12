@@ -27,3 +27,16 @@
 - HTML, CSS, JavaScript, scripts y pruebas con sangría uniforme. Prettier es solo una dependencia de desarrollo. `npm run format` regenera las páginas y `format:check` verifica el formato.
 - Guía de lectura: `docs/GUIA_PARA_ENTENDER_EL_PROYECTO.md`. El README apunta a esta rama y explica los archivos fuente y generados.
 - Validación local inicial: 27 pruebas, 13 aprobadas y 14 de integración omitidas por no configurar PostgreSQL local. Se añaden comprobaciones del calendario, planning y formularios; la ejecución completa de GitHub Actions y del navegador se documentará tras publicar.
+
+### Validación de esta entrega
+
+Código comprobado: `967d3b07f52645c728b83e6fa3fe55a1893e1443`.
+
+- [Pruebas PostgreSQL](https://github.com/DiegoPlana/PruebaProyecto/actions/runs/43214977995): **27/27 aprobadas, 0 omitidas**. Sintaxis, páginas generadas, formato, migraciones repetidas y seed repetido correctos.
+- [Pruebas de navegador](https://github.com/DiegoPlana/PruebaProyecto/actions/runs/43214978054): **51 comprobaciones, 0 errores JavaScript**. Ocho rutas a 320, 390, 768, 1024 y 1440 px; menús, recarga, historial, estados vacíos/errores y navegación sin JavaScript. Formularios de cama, habitación completa y restaurante; panel con sesión, tablas, estructura del planning, detalle, formularios de edición y cierre de sesión. API ficticia en el navegador; PostgreSQL real en la suite anterior.
+- El informe de navegador registra cuatro POST ficticios: tres solicitudes públicas y el cierre de sesión del panel. No son reservas reales.
+- Artefacto `evidencias-diseno` (`13943096807`): informe JSON y capturas de inicio, reservas y menú. Revisadas visualmente las capturas de escritorio y móvil. Retención de GitHub: 14 días.
+- Comparación del árbol de sintaxis: autenticación, validación, reservas, restaurante, transacciones y scripts de migración/seed/administrador conservan la misma lógica; sus cambios son formato y comentarios.
+- [PR de revisión #3](https://github.com/DiegoPlana/PruebaProyecto/pull/3), hacia `main`. Esta entrega contiene el trabajo multipágina anterior; revisar como entrega conjunta para evitar integrar dos veces el mismo diseño. No se ha fusionado ninguna rama.
+
+La anotación de resultados es posterior a las pruebas y solo modifica este documento.
