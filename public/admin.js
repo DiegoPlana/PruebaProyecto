@@ -1,62 +1,512 @@
-import {$,escapeHtml as esc,today,plusDays,pretty,api,toast,busy,formValues,listenClose} from './shared.js';
-let csrf=null,data=null,currentTab='overview',editing=null;
-listenClose($('#detail-dialog'));listenClose($('#edit-dialog'));
-$('#plan-date').value=today();
-const badge=status=>`<span class="badge ${esc(status)}">${esc(status)}</span>`;
-const noData=message=>`<p class="fine">${message}</p>`;
-async function session(){try{const s=await api('/api/session');csrf=s.csrf;$('#admin-email').textContent=s.email;$('#login-view').hidden=true;$('#admin-view').hidden=false;$('#logout').hidden=false;await refresh();}catch(e){if(e.status!==401)$('#login-error').textContent=e.message;showLogin();}}
-function showLogin(){csrf=null;data=null;$('#admin-view').hidden=true;$('#logout').hidden=true;$('#login-view').hidden=false;$('#detail-dialog').close();$('#edit-dialog').close();}
-$('#login-form').addEventListener('submit',async e=>{e.preventDefault();await busy(e.submitter,async()=>{try{await api('/api/login',{method:'POST',data:formValues(e.target)});e.target.reset();$('#login-error').textContent='';await session();}catch(err){$('#login-error').textContent=err.message;}});});
-$('#logout').onclick=async()=>{try{await api('/api/logout',{method:'POST',data:{},csrf});showLogin();}catch(e){toast(e.message);}};
-async function refresh(){try{$('#admin-error').textContent='';data=await api('/api/admin/data');render();}catch(e){if(e.status===401)showLogin();else $('#admin-error').textContent=e.message;}}
-$('#refresh').onclick=()=>busy($('#refresh'),refresh);
-const titles={overview:'Todo, en su sitio.',bookings:'Estancias con nombre propio.',planning:'Cada cama, cada día.',rooms:'Espacio para todos.',restaurant:'Alrededor de la mesa.',activity:'El pulso del albergue.'};
-document.querySelectorAll('[data-tab]').forEach(button=>button.onclick=()=>{currentTab=button.dataset.tab;document.querySelectorAll('[data-tab]').forEach(b=>{b.classList.toggle('active',b===button);b.setAttribute('aria-current',b===button?'page':'false');});document.querySelectorAll('.admin-section').forEach(s=>s.hidden=s.id!=='tab-'+currentTab);$('#admin-title').textContent=titles[currentTab];});
-function bookingTable(rows,domain='bookings'){
- if(!rows.length)return noData('No hay solicitudes con estos criterios.');
- return `<table><thead><tr><th>Solicitud</th><th>Visita</th><th>Personas</th><th>Estado</th><th>Acción</th></tr></thead><tbody>${rows.map(b=>`<tr><td>${esc(b.first_name+' '+b.last_name)}<small>${esc(b.reference)}</small></td><td>${esc(pretty(b.arrival??b.date))}<small>${domain==='bookings'?'hasta '+esc(pretty(b.departure)):esc(b.time)}</small></td><td>${b.people}</td><td>${badge(b.status)}</td><td><button class="button outline small" data-detail="${b.id}" data-domain="${domain}">Abrir →</button></td></tr>`).join('')}</tbody></table>`;
+import {
+  camposHabitacion,
+  camposTurno,
+  camposEstancia,
+  camposBloqueo,
+} from './js/admin-formularios.js';
+// Panel de administración: sesión, filtros y acciones del usuario.
+// Las tablas y el planning se dibujan en js/admin-tablas.js.
+import {
+  seleccionar,
+  escaparHtml,
+  obtenerHoy,
+  formatearFecha,
+  llamarApi,
+  mostrarAviso,
+  ejecutarConBotonOcupado,
+  obtenerDatosFormulario,
+  prepararCierreDialogo,
+} from './shared.js';
+import { crearTablaSolicitudes, crearPlanning } from './js/admin-tablas.js';
+let csrf = null,
+  datosPanel = null,
+  pestanaActual = 'overview',
+  edicionActual = null;
+prepararCierreDialogo(seleccionar('#detail-dialog'));
+prepararCierreDialogo(seleccionar('#edit-dialog'));
+seleccionar('#plan-date').value = obtenerHoy();
+const mensajeVacio = (message) => /* HTML */ `
+  <p class="fine">${message}</p>
+`;
+
+// 1. Inicio de sesión y carga de datos del panel.
+async function cargarSesion() {
+  try {
+    const s = await llamarApi('/api/session');
+    csrf = s.csrf;
+    seleccionar('#admin-email').textContent = s.email;
+    seleccionar('#login-view').hidden = true;
+    seleccionar('#admin-view').hidden = false;
+    seleccionar('#logout').hidden = false;
+    await actualizarPanel();
+  } catch (e) {
+    if (e.status !== 401) seleccionar('#login-error').textContent = e.message;
+    mostrarLogin();
+  }
 }
-function filterBookings(){const q=$('#booking-search').value.toLocaleLowerCase('es'),state=$('#booking-status').value;$('#booking-list').innerHTML=bookingTable(data.bookings.filter(b=>(!state||b.status===state)&&`${b.first_name} ${b.last_name} ${b.reference}`.toLocaleLowerCase('es').includes(q)));}
-function filterRestaurant(){const q=$('#restaurant-filter').value.toLocaleLowerCase('es'),state=$('#restaurant-status').value;$('#restaurant-list').innerHTML=bookingTable(data.restaurant.filter(b=>(!state||b.status===state)&&`${b.first_name} ${b.last_name} ${b.reference}`.toLocaleLowerCase('es').includes(q)),'restaurant');}
-$('#booking-search').oninput=filterBookings;$('#booking-status').onchange=filterBookings;$('#restaurant-filter').oninput=filterRestaurant;$('#restaurant-status').onchange=filterRestaurant;
-function render(){
- $('#admin-date').textContent=`${pretty(data.date)} · Datos de PostgreSQL · Ocupación por noche prevista para hoy`;
- const m=data.metrics;$('#metrics').innerHTML=[[m.pending,'Solicitudes de alojamiento pendientes'],[m.occupied+'/'+m.beds,'Camas aceptadas / camas activas hoy'],[m.arrivals+' / '+m.departures,'Llegadas / salidas previstas hoy'],[m.diners,'Comensales aceptados hoy']].map(([n,label])=>`<div class="metric"><p>${label}</p><strong>${n}</strong></div>`).join('');
- $('#pending-list').innerHTML=bookingTable(data.bookings.filter(b=>b.status==='PENDIENTE').slice(0,8))+`<p class="fine">Restaurante: ${m.restaurant_pending} solicitudes pendientes. Revisa su sección para resolverlas.</p>`;
- filterBookings();filterRestaurant();
- const selected=$('#plan-room').value;$('#plan-room').innerHTML='<option value="">Todas</option>'+data.rooms.map(r=>`<option value="${r.id}">${esc(r.name)}</option>`).join('');$('#plan-room').value=selected;
- renderPlanning();
- $('#admin-rooms').innerHTML=data.rooms.map(r=>`<article class="admin-card"><h3>${esc(r.name)}</h3><p>${r.beds.filter(b=>b.active).length} camas activas · ${r.active?'Activa':'Inactiva'}</p><p class="fine">${esc(r.description)}</p><div class="admin-actions"><button class="button outline small" data-edit-room="${r.id}">Editar habitación</button></div></article>`).join('')||noData('Todavía no hay habitaciones.');
- $('#blocks-list').innerHTML=data.blocks.length?`<table><thead><tr><th>Cama</th><th>Periodo</th><th>Motivo</th><th>Acción</th></tr></thead><tbody>${data.blocks.map(b=>`<tr><td>${esc(b.room)} · ${esc(b.label)}</td><td>${esc(pretty(b.arrival))} → ${esc(pretty(b.departure))}</td><td>${esc(b.reason)}</td><td><button class="button outline small" data-unblock="${b.id}">Retirar</button></td></tr>`).join('')}</tbody></table>`:noData('No hay bloqueos activos.');
- $('#slot-list').innerHTML=data.slots.length?`<table><thead><tr><th>Fecha</th><th>Hora</th><th>Plazas retenidas</th><th>Estado</th><th>Acción</th></tr></thead><tbody>${data.slots.map(s=>`<tr><td>${esc(pretty(s.date))}</td><td>${esc(s.time)}</td><td>${s.used} / ${s.capacity}</td><td>${s.closed?'Cerrado':'Abierto'}</td><td><button class="button outline small" data-edit-slot="${s.id}">Editar</button></td></tr>`).join('')}</tbody></table>`:noData('No hay turnos. Crea únicamente horarios confirmados por el establecimiento.');
- $('#audit-list').innerHTML=data.events.map(a=>`<div class="audit-item">${esc(a.action.replaceAll('_',' ').toLowerCase())}<small>${esc(new Date(a.created_at).toLocaleString('es-ES',{timeZone:'Europe/Madrid'}))}</small><p class="fine">${esc(a.entity_id)}</p></div>`).join('')||noData('Sin actividad registrada.');
+function mostrarLogin() {
+  csrf = null;
+  datosPanel = null;
+  seleccionar('#admin-view').hidden = true;
+  seleccionar('#logout').hidden = true;
+  seleccionar('#login-view').hidden = false;
+  seleccionar('#detail-dialog').close();
+  seleccionar('#edit-dialog').close();
 }
-function renderPlanning(){if(!data)return;const start=$('#plan-date').value;if(!start)return;const days=Array.from({length:Number($('#plan-days').value)},(_,i)=>plusDays(start,i));const room=$('#plan-room').value;
- $('#planning-table').innerHTML=`<table class="planning"><thead><tr><th>Habitación / cama</th>${days.map(d=>`<th>${d.slice(8)}/${d.slice(5,7)}</th>`).join('')}</tr></thead><tbody>${data.rooms.filter(r=>!room||String(r.id)===room).flatMap(r=>r.beds.filter(b=>b.active).map(b=>`<tr><th>${esc(r.name)}<br>${esc(b.label)}</th>${days.map(d=>{const booking=data.bookings.find(x=>x.status!=='RECHAZADA'&&x.arrival<=d&&x.departure>d&&x.beds.some(a=>a.id===b.id));const block=data.blocks.find(x=>x.bed_id===b.id&&x.arrival<=d&&x.departure>d);const state=booking?.status??(block?'BLOQUEO':'LIBRE');return `<td>${booking?`<button class="plan-cell ${state}" data-detail="${booking.id}" data-domain="bookings" aria-label="${esc(r.name+' '+b.label+' '+pretty(d)+' '+state)}">${state==='PENDIENTE'?'P':'A'}</button>`:`<span class="plan-cell ${state}" title="${esc(state+(block?' · '+block.reason:''))}">${block?'B':'·'}</span>`}</td>`;}).join('')}</tr>`)).join('')}</tbody></table>`;
-}
-$('#plan-date').onchange=renderPlanning;$('#plan-days').onchange=renderPlanning;$('#plan-room').onchange=renderPlanning;
-function detail(id,domain){const b=(domain==='bookings'?data.bookings:data.restaurant).find(x=>x.id===id);if(!b)return;
- $('#detail-title').textContent=b.reference;
- const items=[['Huésped',b.first_name+' '+b.last_name],['Estado',b.status],['Email',b.email],['Teléfono',b.phone],['Personas',b.people],['Fechas',domain==='bookings'?pretty(b.arrival)+' → '+pretty(b.departure):pretty(b.date)+' · '+b.time],['Observaciones',b.notes||'Sin observaciones']];
- if(domain==='bookings'){items.push(['Modalidad',b.mode==='ROOM'?'Habitación completa':'Camas individuales'],['Asignación actual',b.beds.map(x=>x.room+' · '+x.label).join(', ')||'Inventario liberado'],['Entrada real',b.checked_in_at?new Date(b.checked_in_at).toLocaleString('es-ES'):'Sin registrar'],['Salida real',b.checked_out_at?new Date(b.checked_out_at).toLocaleString('es-ES'):'Sin registrar']);}
- $('#detail-body').innerHTML=`<dl class="data-details">${items.map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl><p class="fine">Las decisiones quedan registradas. No se envía correo real en esta versión.</p><div class="admin-actions">${b.status==='PENDIENTE'?`<button class="button" data-resolve="ACEPTADA" data-id="${id}" data-domain="${domain}">Aceptar solicitud</button><button class="button danger" data-resolve="RECHAZADA" data-id="${id}" data-domain="${domain}">Rechazar solicitud</button>`:''}${domain==='bookings'&&b.status!=='RECHAZADA'&&!b.checked_in_at?`<button class="button outline" data-edit-booking="${id}">Modificar estancia</button>`:''}${domain==='bookings'&&b.status==='ACEPTADA'&&!b.checked_out_at?`<button class="button secondary" data-check="${b.checked_in_at?'out':'in'}" data-id="${id}">${b.checked_in_at?'Registrar salida':'Registrar entrada'}</button>`:''}</div>`;
- if(!$('#detail-dialog').open)$('#detail-dialog').showModal();
-}
-function input(label,name,value='',type='text',extra=''){return `<label>${label}<input name="${name}" type="${type}" value="${esc(value)}" ${extra} required></label>`;}
-function openEdit(title,fields,type,id){editing={type,id};$('#edit-title').textContent=title;$('#edit-fields').innerHTML=fields;$('#edit-error').textContent='';$('#edit-dialog').showModal();}
-function editRoom(id){const r=data.rooms.find(x=>x.id===id);openEdit(r?'Editar habitación':'Nueva habitación',input('Nombre','name',r?.name??'','text','maxlength="80"')+`<label>Descripción<textarea name="description" maxlength="1000">${esc(r?.description??'')}</textarea></label>`+input('Camas activas','capacity',r?.beds.filter(b=>b.active).length??8,'number','min="1" max="100"')+`<label>Estado<select name="active"><option value="true">Activa</option><option value="false" ${r&&!r.active?'selected':''}>Inactiva</option></select></label><p class="fine">Reducir capacidad desactiva camas; no borra su historial. No se permite si afecta a reservas o bloqueos vigentes.</p>`,'room',id);}
-function editSlot(id){const s=data.slots.find(x=>x.id===id);openEdit(s?'Editar turno':'Nuevo turno',`<div class="form-grid">${input('Fecha','date',s?.date??today(),'date')}${input('Hora local · Madrid','time',s?.time??'','time')}</div>`+input('Capacidad','capacity',s?.capacity??'','number','min="1" max="500"')+`<label>Estado<select name="closed"><option value="false">Abierto</option><option value="true" ${s?.closed?'selected':''}>Cerrado</option></select></label><p class="fine">No se puede mover o cerrar un turno con solicitudes vigentes ni reducir capacidad por debajo de sus plazas retenidas.</p>`,'slot',id);}
-function editBooking(id){const b=data.bookings.find(x=>x.id===id);$('#detail-dialog').close();openEdit('Modificar estancia',`<div class="form-grid">${input('Nombre','firstName',b.first_name)}${input('Apellidos','lastName',b.last_name)}${input('Email','email',b.email,'email')}${input('Teléfono','phone',b.phone,'tel')}${input('Llegada','arrival',b.arrival,'date')}${input('Salida','departure',b.departure,'date')}</div>`+input('Personas','people',b.people,'number','min="1" max="500"')+`<label>Modalidad<select name="mode"><option value="BEDS" ${b.mode==='BEDS'?'selected':''}>Camas individuales</option><option value="ROOM" ${b.mode==='ROOM'?'selected':''}>Habitación completa</option></select></label><label>Habitación (solo modalidad completa)<select name="roomId">${data.rooms.filter(r=>r.active).map(r=>`<option value="${r.id}" ${b.beds.some(x=>r.beds.some(y=>y.id===x.id))?'selected':''}>${esc(r.name)}</option>`).join('')}</select></label><fieldset><legend>Camas (solo modalidad individual)</legend><div class="beds">${data.rooms.filter(r=>r.active).flatMap(r=>r.beds.filter(x=>x.active).map(x=>`<label class="bed-option"><input type="checkbox" name="bedIds" value="${x.id}" ${b.beds.some(y=>y.id===x.id)?'checked':''}><span>${esc(r.name+' · '+x.label)}</span></label>`)).join('')}</div></fieldset><label>Observaciones<textarea name="notes" maxlength="1000">${esc(b.notes)}</textarea></label><p class="fine">El servidor revalida el inventario. Si existe conflicto, la estancia original se conserva íntegra.</p>`,'booking',id);}
-$('#new-room').onclick=()=>editRoom();$('#new-slot').onclick=()=>editSlot();
-$('#new-block').onclick=()=>openEdit('Bloquear camas',`<div class="form-grid">${input('Desde','arrival',today(),'date')}${input('Hasta (no incluido)','departure',plusDays(today(),1),'date')}</div>${input('Motivo','reason','','text','maxlength="200"')}<fieldset><legend>Camas</legend><div class="beds">${data.rooms.filter(r=>r.active).flatMap(r=>r.beds.filter(b=>b.active).map(b=>`<label class="bed-option"><input type="checkbox" name="bedIds" value="${b.id}"><span>${esc(r.name+' · '+b.label)}</span></label>`)).join('')}</div></fieldset>`,'block');
-$('#edit-form').addEventListener('submit',async e=>{e.preventDefault();if(!confirm('¿Guardar estos cambios? Se comprobará el inventario y se registrará la acción.'))return;await busy(e.submitter,async()=>{const v=formValues(e.target);try{let path,method='POST';if(editing.type==='room'){path='/api/admin/rooms';v.capacity=Number(v.capacity);v.active=v.active==='true';if(editing.id)v.id=editing.id;}if(editing.type==='slot'){path='/api/admin/slots';v.capacity=Number(v.capacity);v.closed=v.closed==='true';if(editing.id)v.id=editing.id;}if(editing.type==='booking'){path='/api/admin/bookings/'+editing.id;method='PATCH';v.people=Number(v.people);v.roomId=Number(v.roomId);v.bedIds=new FormData(e.target).getAll('bedIds').map(Number);}if(editing.type==='block'){path='/api/admin/blocks';v.bedIds=new FormData(e.target).getAll('bedIds').map(Number);}await api(path,{method,data:v,csrf});$('#edit-dialog').close();toast('Cambios guardados.');await refresh();}catch(err){$('#edit-error').textContent=err.message;}});});
-document.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b||!data)return;
- if(b.dataset.detail)detail(b.dataset.detail,b.dataset.domain);
- if(b.dataset.editRoom)editRoom(Number(b.dataset.editRoom));if(b.dataset.editSlot)editSlot(Number(b.dataset.editSlot));if(b.dataset.editBooking)editBooking(b.dataset.editBooking);
- let path,method='PATCH',payload={},message;
- if(b.dataset.resolve){path=`/api/admin/${b.dataset.domain}/${b.dataset.id}/status`;payload={status:b.dataset.resolve};message=b.dataset.resolve==='ACEPTADA'?'¿Aceptar la solicitud? Las plazas seguirán ocupadas.':'¿Rechazar la solicitud y liberar sus plazas?';}
- if(b.dataset.check){path=`/api/admin/bookings/${b.dataset.id}/check`;payload={action:b.dataset.check};message='¿Registrar la '+(b.dataset.check==='in'?'entrada':'salida')+' real ahora?';}
- if(b.dataset.unblock){path='/api/admin/blocks/'+b.dataset.unblock;method='DELETE';message='¿Retirar este bloqueo y volver a ofrecer las camas?';}
- if(path&&confirm(message))await busy(b,async()=>{try{await api(path,{method,data:payload,csrf});$('#detail-dialog').close();toast('Operación guardada.');await refresh();}catch(err){toast(err.message);}});
+seleccionar('#login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  await ejecutarConBotonOcupado(e.submitter, async () => {
+    try {
+      await llamarApi('/api/login', { method: 'POST', data: obtenerDatosFormulario(e.target) });
+      e.target.reset();
+      seleccionar('#login-error').textContent = '';
+      await cargarSesion();
+    } catch (err) {
+      seleccionar('#login-error').textContent = err.message;
+    }
+  });
 });
-session();
+seleccionar('#logout').onclick = async () => {
+  try {
+    await llamarApi('/api/logout', { method: 'POST', data: {}, csrf });
+    mostrarLogin();
+  } catch (e) {
+    mostrarAviso(e.message);
+  }
+};
+async function actualizarPanel() {
+  try {
+    seleccionar('#admin-error').textContent = '';
+    datosPanel = await llamarApi('/api/admin/data');
+    mostrarPanel();
+  } catch (e) {
+    if (e.status === 401) mostrarLogin();
+    else seleccionar('#admin-error').textContent = e.message;
+  }
+}
+seleccionar('#refresh').onclick = () =>
+  ejecutarConBotonOcupado(seleccionar('#refresh'), actualizarPanel);
+
+// 2. Navegación entre las secciones del panel.
+const titulos = {
+  overview: 'Todo, en su sitio.',
+  bookings: 'Estancias con nombre propio.',
+  planning: 'Cada cama, cada día.',
+  rooms: 'Espacio para todos.',
+  restaurant: 'Alrededor de la mesa.',
+  activity: 'El pulso del albergue.',
+};
+document.querySelectorAll('[data-tab]').forEach(
+  (button) =>
+    (button.onclick = () => {
+      pestanaActual = button.dataset.tab;
+      document.querySelectorAll('[data-tab]').forEach((b) => {
+        b.classList.toggle('active', b === button);
+        b.setAttribute('aria-current', b === button ? 'page' : 'false');
+      });
+      document
+        .querySelectorAll('.admin-section')
+        .forEach((s) => (s.hidden = s.id !== 'tab-' + pestanaActual));
+      seleccionar('#admin-title').textContent = titulos[pestanaActual];
+    }),
+);
+
+// 3. Filtros de solicitudes.
+function filtrarEstancias() {
+  const q = seleccionar('#booking-search').value.toLocaleLowerCase('es'),
+    state = seleccionar('#booking-status').value;
+  seleccionar('#booking-list').innerHTML = crearTablaSolicitudes(
+    datosPanel.bookings.filter(
+      (b) =>
+        (!state || b.status === state) &&
+        `${b.first_name} ${b.last_name} ${b.reference}`.toLocaleLowerCase('es').includes(q),
+    ),
+  );
+}
+function filtrarRestaurante() {
+  const q = seleccionar('#restaurant-filter').value.toLocaleLowerCase('es'),
+    state = seleccionar('#restaurant-status').value;
+  seleccionar('#restaurant-list').innerHTML = crearTablaSolicitudes(
+    datosPanel.restaurant.filter(
+      (b) =>
+        (!state || b.status === state) &&
+        `${b.first_name} ${b.last_name} ${b.reference}`.toLocaleLowerCase('es').includes(q),
+    ),
+    'restaurant',
+  );
+}
+seleccionar('#booking-search').oninput = filtrarEstancias;
+seleccionar('#booking-status').onchange = filtrarEstancias;
+seleccionar('#restaurant-filter').oninput = filtrarRestaurante;
+seleccionar('#restaurant-status').onchange = filtrarRestaurante;
+
+// 4. Dibujar los datos recibidos del servidor.
+function mostrarPanel() {
+  seleccionar('#admin-date').textContent =
+    `${formatearFecha(datosPanel.date)} · Datos de PostgreSQL · Ocupación por noche prevista para hoy`;
+  const m = datosPanel.metrics;
+  seleccionar('#metrics').innerHTML = [
+    [m.pending, 'Solicitudes de alojamiento pendientes'],
+    [m.occupied + '/' + m.beds, 'Camas aceptadas / camas activas hoy'],
+    [m.arrivals + ' / ' + m.departures, 'Llegadas / salidas previstas hoy'],
+    [m.diners, 'Comensales aceptados hoy'],
+  ]
+    .map(
+      ([n, label]) => /* HTML */ `
+        <div class="metric">
+          <p>${label}</p>
+          <strong>${n}</strong>
+        </div>
+      `,
+    )
+    .join('');
+  seleccionar('#pending-list').innerHTML =
+    crearTablaSolicitudes(datosPanel.bookings.filter((b) => b.status === 'PENDIENTE').slice(0, 8)) +
+    /* HTML */ `
+      <p class="fine">
+        Restaurante: ${m.restaurant_pending} solicitudes pendientes. Revisa su sección para
+        resolverlas.
+      </p>
+    `;
+  filtrarEstancias();
+  filtrarRestaurante();
+  const selected = seleccionar('#plan-room').value;
+  seleccionar('#plan-room').innerHTML =
+    '<option value="">Todas</option>' +
+    datosPanel.rooms
+      .map(
+        (r) => /* HTML */ `
+          <option value="${r.id}">${escaparHtml(r.name)}</option>
+        `,
+      )
+      .join('');
+  seleccionar('#plan-room').value = selected;
+  mostrarPlanning();
+  seleccionar('#admin-rooms').innerHTML =
+    datosPanel.rooms
+      .map(
+        (r) => /* HTML */ `
+          <article class="admin-card">
+            <h3>${escaparHtml(r.name)}</h3>
+            <p>
+              ${r.beds.filter((b) => b.active).length} camas activas ·
+              ${r.active ? 'Activa' : 'Inactiva'}
+            </p>
+            <p class="fine">${escaparHtml(r.description)}</p>
+            <div class="admin-actions">
+              <button class="button outline small" data-edit-room="${r.id}">
+                Editar habitación
+              </button>
+            </div>
+          </article>
+        `,
+      )
+      .join('') || mensajeVacio('Todavía no hay habitaciones.');
+  seleccionar('#blocks-list').innerHTML = datosPanel.blocks.length
+    ? /* HTML */ `
+        <table>
+          <thead>
+            <tr>
+              <th>Cama</th>
+              <th>Periodo</th>
+              <th>Motivo</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${datosPanel.blocks
+              .map(
+                (b) => /* HTML */ `
+                  <tr>
+                    <td>${escaparHtml(b.room)} · ${escaparHtml(b.label)}</td>
+                    <td>
+                      ${escaparHtml(formatearFecha(b.arrival))} →
+                      ${escaparHtml(formatearFecha(b.departure))}
+                    </td>
+                    <td>${escaparHtml(b.reason)}</td>
+                    <td>
+                      <button class="button outline small" data-unblock="${b.id}">Retirar</button>
+                    </td>
+                  </tr>
+                `,
+              )
+              .join('')}
+          </tbody>
+        </table>
+      `
+    : mensajeVacio('No hay bloqueos activos.');
+  seleccionar('#slot-list').innerHTML = datosPanel.slots.length
+    ? /* HTML */ `
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Plazas retenidas</th>
+              <th>Estado</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${datosPanel.slots
+              .map(
+                (s) => /* HTML */ `
+                  <tr>
+                    <td>${escaparHtml(formatearFecha(s.date))}</td>
+                    <td>${escaparHtml(s.time)}</td>
+                    <td>${s.used} / ${s.capacity}</td>
+                    <td>${s.closed ? 'Cerrado' : 'Abierto'}</td>
+                    <td>
+                      <button class="button outline small" data-edit-slot="${s.id}">Editar</button>
+                    </td>
+                  </tr>
+                `,
+              )
+              .join('')}
+          </tbody>
+        </table>
+      `
+    : mensajeVacio('No hay turnos. Crea únicamente horarios confirmados por el establecimiento.');
+  seleccionar('#audit-list').innerHTML =
+    datosPanel.events
+      .map(
+        (a) => /* HTML */ `
+          <div class="audit-item">
+            ${escaparHtml(a.action.replaceAll('_', ' ').toLowerCase())}
+            <small>
+              ${escaparHtml(new Date(a.created_at).toLocaleString('es-ES', { timeZone: 'Europe/Madrid' }))}
+            </small>
+            <p class="fine">${escaparHtml(a.entity_id)}</p>
+          </div>
+        `,
+      )
+      .join('') || mensajeVacio('Sin actividad registrada.');
+}
+function mostrarPlanning() {
+  if (!datosPanel) return;
+  const fechaInicio = seleccionar('#plan-date').value;
+  if (!fechaInicio) return;
+  const cantidadDias = Number(seleccionar('#plan-days').value);
+  const habitacionElegida = seleccionar('#plan-room').value;
+  seleccionar('#planning-table').innerHTML = crearPlanning(
+    datosPanel,
+    fechaInicio,
+    cantidadDias,
+    habitacionElegida,
+  );
+}
+seleccionar('#plan-date').onchange = mostrarPlanning;
+seleccionar('#plan-days').onchange = mostrarPlanning;
+seleccionar('#plan-room').onchange = mostrarPlanning;
+
+// 5. Ver el detalle de una solicitud.
+function mostrarDetalle(id, domain) {
+  const b = (domain === 'bookings' ? datosPanel.bookings : datosPanel.restaurant).find(
+    (x) => x.id === id,
+  );
+  if (!b) return;
+  seleccionar('#detail-title').textContent = b.reference;
+  const items = [
+    ['Huésped', b.first_name + ' ' + b.last_name],
+    ['Estado', b.status],
+    ['Email', b.email],
+    ['Teléfono', b.phone],
+    ['Personas', b.people],
+    [
+      'Fechas',
+      domain === 'bookings'
+        ? formatearFecha(b.arrival) + ' → ' + formatearFecha(b.departure)
+        : formatearFecha(b.date) + ' · ' + b.time,
+    ],
+    ['Observaciones', b.notes || 'Sin observaciones'],
+  ];
+  if (domain === 'bookings') {
+    items.push(
+      ['Modalidad', b.mode === 'ROOM' ? 'Habitación completa' : 'Camas individuales'],
+      [
+        'Asignación actual',
+        b.beds.map((x) => x.room + ' · ' + x.label).join(', ') || 'Inventario liberado',
+      ],
+      [
+        'Entrada real',
+        b.checked_in_at ? new Date(b.checked_in_at).toLocaleString('es-ES') : 'Sin registrar',
+      ],
+      [
+        'Salida real',
+        b.checked_out_at ? new Date(b.checked_out_at).toLocaleString('es-ES') : 'Sin registrar',
+      ],
+    );
+  }
+  seleccionar('#detail-body').innerHTML = /* HTML */ `
+    <dl class="data-details">
+      ${items
+        .map(
+          ([k, v]) => /* HTML */ `
+            <div>
+              <dt>${escaparHtml(k)}</dt>
+              <dd>${escaparHtml(v)}</dd>
+            </div>
+          `,
+        )
+        .join('')}
+    </dl>
+    <p class="fine">Las decisiones quedan registradas. No se envía correo real en esta versión.</p>
+    <div class="admin-actions">
+      ${
+        b.status === 'PENDIENTE'
+          ? /* HTML */ `
+              <button
+                class="button"
+                data-resolve="ACEPTADA"
+                data-id="${id}"
+                data-domain="${domain}"
+              >
+                Aceptar solicitud
+              </button>
+              <button
+                class="button danger"
+                data-resolve="RECHAZADA"
+                data-id="${id}"
+                data-domain="${domain}"
+              >
+                Rechazar solicitud
+              </button>
+            `
+          : ''
+      }${
+        domain === 'bookings' && b.status !== 'RECHAZADA' && !b.checked_in_at
+          ? /* HTML */ `
+              <button class="button outline" data-edit-booking="${id}">Modificar estancia</button>
+            `
+          : ''
+      }${
+        domain === 'bookings' && b.status === 'ACEPTADA' && !b.checked_out_at
+          ? /* HTML */ `
+              <button
+                class="button secondary"
+                data-check="${b.checked_in_at ? 'out' : 'in'}"
+                data-id="${id}"
+              >
+                ${b.checked_in_at ? 'Registrar salida' : 'Registrar entrada'}
+              </button>
+            `
+          : ''
+      }
+    </div>
+  `;
+  if (!seleccionar('#detail-dialog').open) seleccionar('#detail-dialog').showModal();
+}
+
+// 6. Formularios de edición de habitaciones, turnos y estancias.
+
+function abrirEdicion(title, fields, type, id) {
+  edicionActual = { type, id };
+  seleccionar('#edit-title').textContent = title;
+  seleccionar('#edit-fields').innerHTML = fields;
+  seleccionar('#edit-error').textContent = '';
+  seleccionar('#edit-dialog').showModal();
+}
+function editarHabitacion(id) {
+  const r = datosPanel.rooms.find((x) => x.id === id);
+  abrirEdicion(r ? 'Editar habitación' : 'Nueva habitación', camposHabitacion(r), 'room', id);
+}
+function editarTurno(id) {
+  const s = datosPanel.slots.find((x) => x.id === id);
+  abrirEdicion(s ? 'Editar turno' : 'Nuevo turno', /* HTML */ camposTurno(s), 'slot', id);
+}
+function editarEstancia(id) {
+  const b = datosPanel.bookings.find((x) => x.id === id);
+  seleccionar('#detail-dialog').close();
+  abrirEdicion('Modificar estancia', /* HTML */ camposEstancia(b, datosPanel), 'booking', id);
+}
+seleccionar('#new-room').onclick = () => editarHabitacion();
+seleccionar('#new-slot').onclick = () => editarTurno();
+seleccionar('#new-block').onclick = () =>
+  abrirEdicion('Bloquear camas', camposBloqueo(datosPanel), 'block');
+
+// 7. Guardar una edición, con confirmación previa.
+seleccionar('#edit-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!confirm('¿Guardar estos cambios? Se comprobará el inventario y se registrará la acción.'))
+    return;
+  await ejecutarConBotonOcupado(e.submitter, async () => {
+    const v = obtenerDatosFormulario(e.target);
+    try {
+      let path,
+        method = 'POST';
+      if (edicionActual.type === 'room') {
+        path = '/api/admin/rooms';
+        v.capacity = Number(v.capacity);
+        v.active = v.active === 'true';
+        if (edicionActual.id) v.id = edicionActual.id;
+      }
+      if (edicionActual.type === 'slot') {
+        path = '/api/admin/slots';
+        v.capacity = Number(v.capacity);
+        v.closed = v.closed === 'true';
+        if (edicionActual.id) v.id = edicionActual.id;
+      }
+      if (edicionActual.type === 'booking') {
+        path = '/api/admin/bookings/' + edicionActual.id;
+        method = 'PATCH';
+        v.people = Number(v.people);
+        v.roomId = Number(v.roomId);
+        v.bedIds = new FormData(e.target).getAll('bedIds').map(Number);
+      }
+      if (edicionActual.type === 'block') {
+        path = '/api/admin/blocks';
+        v.bedIds = new FormData(e.target).getAll('bedIds').map(Number);
+      }
+      await llamarApi(path, { method, data: v, csrf });
+      seleccionar('#edit-dialog').close();
+      mostrarAviso('Cambios guardados.');
+      await actualizarPanel();
+    } catch (err) {
+      seleccionar('#edit-error').textContent = err.message;
+    }
+  });
+});
+
+// 8. Aceptar, rechazar, registrar entradas/salidas o retirar bloqueos.
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('button');
+  if (!b || !datosPanel) return;
+  if (b.dataset.detail) mostrarDetalle(b.dataset.detail, b.dataset.domain);
+  if (b.dataset.editRoom) editarHabitacion(Number(b.dataset.editRoom));
+  if (b.dataset.editSlot) editarTurno(Number(b.dataset.editSlot));
+  if (b.dataset.editBooking) editarEstancia(b.dataset.editBooking);
+  let path,
+    method = 'PATCH',
+    payload = {},
+    message;
+  if (b.dataset.resolve) {
+    path = `/api/admin/${b.dataset.domain}/${b.dataset.id}/status`;
+    payload = { status: b.dataset.resolve };
+    message =
+      b.dataset.resolve === 'ACEPTADA'
+        ? '¿Aceptar la solicitud? Las plazas seguirán ocupadas.'
+        : '¿Rechazar la solicitud y liberar sus plazas?';
+  }
+  if (b.dataset.check) {
+    path = `/api/admin/bookings/${b.dataset.id}/check`;
+    payload = { action: b.dataset.check };
+    message = '¿Registrar la ' + (b.dataset.check === 'in' ? 'entrada' : 'salida') + ' real ahora?';
+  }
+  if (b.dataset.unblock) {
+    path = '/api/admin/blocks/' + b.dataset.unblock;
+    method = 'DELETE';
+    message = '¿Retirar este bloqueo y volver a ofrecer las camas?';
+  }
+  if (path && confirm(message))
+    await ejecutarConBotonOcupado(b, async () => {
+      try {
+        await llamarApi(path, { method, data: payload, csrf });
+        seleccionar('#detail-dialog').close();
+        mostrarAviso('Operación guardada.');
+        await actualizarPanel();
+      } catch (err) {
+        mostrarAviso(err.message);
+      }
+    });
+});
+cargarSesion();

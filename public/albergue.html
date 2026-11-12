@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Conoce el proyecto del Albergue Santa Quiteria en Almassora y las formas de organizar tu estancia."
+    />
+    <meta name="theme-color" content="#0B201F" />
+    <title>El albergue · Albergue Santa Quiteria</title>
+    <link rel="icon" href="/mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/pages.css" />
+    <script src="/navigation.js" type="module"></script>
+  </head>
+  <body class="public-site page-albergue">
+    <a href="#main" class="skip">Saltar al contenido</a>
+    <div class="dev-banner">
+      PROYECTO EN DESARROLLO
+      <span>· Inventario provisional. No usar para reservas reales.</span>
+    </div>
+    <header class="header site-header">
+      <a class="brand" href="/" aria-label="Santa Quiteria, inicio">
+        <img src="/mark.svg" alt="" width="44" height="44" />
+        <span>
+          SANTA QUITERIA
+          <small>ALBERGUE · ALMASSORA</small>
+        </span>
+      </a>
+      <button
+        id="menu-toggle"
+        class="menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="navigation"
+      >
+        <span>Menú</span>
+        <span aria-hidden="true">☰</span>
+      </button>
+      <nav id="navigation" aria-label="Principal">
+        <a href="/">Inicio</a>
+        <a href="/albergue" aria-current="page">El albergue</a>
+        <a href="/habitaciones">Habitaciones</a>
+        <a href="/restaurante">Restaurante</a>
+        <a href="/servicios">Servicios</a>
+        <a href="/galeria">Galería</a>
+        <a href="/contacto">Contacto</a>
+        <a href="/reservas" class="button small">Reservas</a>
+      </nav>
+    </header>
+    <main id="main" tabindex="-1" class="">
+      <nav class="breadcrumb" aria-label="Ruta de navegación">
+        <a href="/">Inicio</a>
+        <span aria-hidden="true">/</span>
+        <span>El albergue</span>
+      </nav>
+      <section class="page-intro">
+        <p class="eyebrow">EL ALBERGUE · ALMASSORA</p>
+        <h1>
+          Menos prisa.
+          <br />
+          Más
+          <em>momentos.</em>
+        </h1>
+        <p class="page-lead">
+          Un punto de encuentro para organizar tu estancia, compartir el viaje y hacer espacio para
+          lo sencillo.
+        </p>
+      </section>
+      <section class="editorial-split section">
+        <figure class="landscape-frame">
+          <img
+            src="/landscape.svg"
+            alt="Paisaje mediterráneo conceptual. No representa las instalaciones reales del albergue."
+            width="900"
+            height="1050"
+          />
+          <figcaption>
+            Ilustración conceptual · Fotografías reales pendientes de validación.
+          </figcaption>
+        </figure>
+        <div class="editorial-copy">
+          <p class="eyebrow">SANTA QUITERIA</p>
+          <h2>
+            Tu estancia,
+            <br />
+            a tu
+            <em>manera.</em>
+          </h2>
+          <p>
+            Esta web del Albergue Santa Quiteria, en Almassora, reúne la consulta de alojamiento y
+            las solicitudes de restaurante.
+          </p>
+          <p>
+            Puedes solicitar una cama individual o una habitación completa. No necesitas crear una
+            cuenta: el equipo revisa cada solicitud antes de confirmar la estancia.
+          </p>
+          <a class="button" href="/habitaciones">
+            Explora las habitaciones
+            <span aria-hidden="true">↗</span>
+          </a>
+          <aside class="content-note">
+            <h3>Un proyecto que toma forma</h3>
+            <p>
+              La historia, las instalaciones y las fotografías oficiales están
+              <strong>pendientes de confirmación</strong>
+              . Las ilustraciones de esta versión son conceptuales.
+            </p>
+          </aside>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-intro">
+        <a class="brand" href="/">
+          <img src="/mark.svg" alt="" width="40" height="40" />
+          <span>
+            SANTA QUITERIA
+            <small>ALBERGUE · ALMASSORA</small>
+          </span>
+        </a>
+        <p>
+          Un lugar para bajar el ritmo.
+          <br />
+          <small>Proyecto DAW · Los Murlocs</small>
+        </p>
+      </div>
+      <nav class="footer-navigation" aria-label="Explorar">
+        <a href="/">Inicio</a>
+        <a href="/albergue" aria-current="page">El albergue</a>
+        <a href="/habitaciones">Habitaciones</a>
+        <a href="/restaurante">Restaurante</a>
+        <a href="/servicios">Servicios</a>
+        <a href="/galeria">Galería</a>
+        <a href="/contacto">Contacto</a>
+        <a href="/reservas">Reservas</a>
+      </nav>
+      <div class="footer-meta">
+        <a href="/legal.html">Privacidad y estado del proyecto</a>
+        <a href="/admin">
+          Acceso del equipo
+          <span aria-hidden="true">↗</span>
+        </a>
+        <p class="fine">
+          Contenido y fotografías oficiales
+          <br />
+          pendientes de confirmación.
+        </p>
+      </div>
+    </footer>
+
+    <div id="toast" role="status" class="toast" hidden></div>
+  </body>
+</html>

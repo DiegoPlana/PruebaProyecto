@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Consulta los turnos del restaurante y envía una solicitud independiente del alojamiento."
+    />
+    <meta name="theme-color" content="#0B201F" />
+    <title>Restaurante · Albergue Santa Quiteria</title>
+    <link rel="icon" href="/mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/pages.css" />
+    <script src="/navigation.js" type="module"></script>
+    <script src="/app.js" type="module"></script>
+  </head>
+  <body class="public-site page-restaurante">
+    <a href="#main" class="skip">Saltar al contenido</a>
+    <div class="dev-banner">
+      PROYECTO EN DESARROLLO
+      <span>· Inventario provisional. No usar para reservas reales.</span>
+    </div>
+    <header class="header site-header">
+      <a class="brand" href="/" aria-label="Santa Quiteria, inicio">
+        <img src="/mark.svg" alt="" width="44" height="44" />
+        <span>
+          SANTA QUITERIA
+          <small>ALBERGUE · ALMASSORA</small>
+        </span>
+      </a>
+      <button
+        id="menu-toggle"
+        class="menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="navigation"
+      >
+        <span>Menú</span>
+        <span aria-hidden="true">☰</span>
+      </button>
+      <nav id="navigation" aria-label="Principal">
+        <a href="/">Inicio</a>
+        <a href="/albergue">El albergue</a>
+        <a href="/habitaciones">Habitaciones</a>
+        <a href="/restaurante" aria-current="page">Restaurante</a>
+        <a href="/servicios">Servicios</a>
+        <a href="/galeria">Galería</a>
+        <a href="/contacto">Contacto</a>
+        <a href="/reservas" class="button small">Reservas</a>
+      </nav>
+    </header>
+    <main id="main" tabindex="-1" class="">
+      <nav class="breadcrumb" aria-label="Ruta de navegación">
+        <a href="/">Inicio</a>
+        <span aria-hidden="true">/</span>
+        <span>Restaurante</span>
+      </nav>
+      <section class="restaurant-section" id="restaurante">
+        <div class="restaurant-story">
+          <p class="eyebrow">RESTAURANTE · ALREDEDOR DE LA MESA</p>
+          <h1>
+            Las mejores historias
+            <br />
+            se comparten
+            <br />
+            <em>sin prisa.</em>
+          </h1>
+          <p>Organiza tu visita al restaurante con una solicitud independiente del alojamiento.</p>
+          <p class="fine light">
+            Los horarios, el aforo, la carta y los precios están pendientes de confirmar. Solo
+            aparecen los turnos configurados por administración.
+          </p>
+        </div>
+        <div class="restaurant-card">
+          <p class="eyebrow">UN SITIO EN LA MESA</p>
+          <h3>Consulta un turno</h3>
+          <form id="restaurant-search">
+            <label>
+              Fecha de la visita
+              <input name="date" type="date" required />
+            </label>
+            <label>
+              Comensales
+              <input name="people" type="number" min="1" max="500" value="2" required />
+            </label>
+            <button class="button full-width">Ver turnos disponibles →</button>
+          </form>
+          <div id="restaurant-results" aria-live="polite"></div>
+        </div>
+      </section>
+      <section class="section restaurant-details">
+        <div>
+          <p class="eyebrow">UNA SOLICITUD INDEPENDIENTE</p>
+          <h2>
+            Comparte mesa.
+            <br />
+            Organiza tu
+            <em>visita.</em>
+          </h2>
+        </div>
+        <ol class="editorial-list">
+          <li>
+            <h3>Consulta la fecha</h3>
+            <p>Se muestran únicamente los turnos publicados por el equipo.</p>
+          </li>
+          <li>
+            <h3>Indica los comensales</h3>
+            <p>La disponibilidad depende de las plazas libres del turno elegido.</p>
+          </li>
+          <li>
+            <h3>Espera la revisión</h3>
+            <p>Recibir una referencia no significa que la solicitud esté aceptada.</p>
+          </li>
+        </ol>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-intro">
+        <a class="brand" href="/">
+          <img src="/mark.svg" alt="" width="40" height="40" />
+          <span>
+            SANTA QUITERIA
+            <small>ALBERGUE · ALMASSORA</small>
+          </span>
+        </a>
+        <p>
+          Un lugar para bajar el ritmo.
+          <br />
+          <small>Proyecto DAW · Los Murlocs</small>
+        </p>
+      </div>
+      <nav class="footer-navigation" aria-label="Explorar">
+        <a href="/">Inicio</a>
+        <a href="/albergue">El albergue</a>
+        <a href="/habitaciones">Habitaciones</a>
+        <a href="/restaurante" aria-current="page">Restaurante</a>
+        <a href="/servicios">Servicios</a>
+        <a href="/galeria">Galería</a>
+        <a href="/contacto">Contacto</a>
+        <a href="/reservas">Reservas</a>
+      </nav>
+      <div class="footer-meta">
+        <a href="/legal.html">Privacidad y estado del proyecto</a>
+        <a href="/admin">
+          Acceso del equipo
+          <span aria-hidden="true">↗</span>
+        </a>
+        <p class="fine">
+          Contenido y fotografías oficiales
+          <br />
+          pendientes de confirmación.
+        </p>
+      </div>
+    </footer>
+    <dialog id="request-dialog" aria-labelledby="request-title">
+      <div class="dialog-heading">
+        <div>
+          <p class="eyebrow">UN PASO MÁS</p>
+          <h2 id="request-title">Tu solicitud</h2>
+        </div>
+        <button class="icon-button" data-close aria-label="Cerrar formulario">✕</button>
+      </div>
+      <div id="request-summary" class="summary"></div>
+      <form id="request-form">
+        <div class="form-grid">
+          <label>
+            Nombre
+            <input name="firstName" autocomplete="given-name" maxlength="120" required />
+          </label>
+          <label>
+            Apellidos
+            <input name="lastName" autocomplete="family-name" maxlength="120" required />
+          </label>
+          <label>
+            Email
+            <input name="email" type="email" autocomplete="email" maxlength="254" required />
+          </label>
+          <label>
+            Teléfono
+            <input
+              name="phone"
+              type="tel"
+              autocomplete="tel"
+              maxlength="30"
+              pattern="[+0-9 ().\-]{7,30}"
+              required
+            />
+          </label>
+        </div>
+        <label>
+          Observaciones
+          <span class="muted">(opcional)</span>
+          <textarea name="notes" maxlength="1000" rows="3"></textarea>
+        </label>
+        <label class="checkbox-line">
+          <input type="checkbox" required />
+          He revisado los datos y entiendo que es una solicitud pendiente de aprobación. En esta
+          versión usaré datos ficticios.
+        </label>
+        <p class="fine">
+          No se realiza ningún cobro.
+          <a href="/legal.html" target="_blank" rel="noopener">
+            Información de privacidad y pruebas
+          </a>
+          .
+        </p>
+        <p id="request-error" role="alert" class="error"></p>
+        <button class="button full-width" type="submit">Enviar solicitud pendiente →</button>
+      </form>
+      <div id="request-success" hidden></div>
+    </dialog>
+    <div id="toast" role="status" class="toast" hidden></div>
+  </body>
+</html>

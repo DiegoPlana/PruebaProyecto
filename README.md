@@ -4,6 +4,10 @@ Aplicación DAW de Los Murlocs desarrollada en **DiegoPlana/PruebaProyecto**, a 
 
 **Estado: primera versión funcional en desarrollo. No utilizar con huéspedes reales.** La identidad usa Niebla Suave `#E8ECEB`, Verde Abeto `#0B201F`, Cerceta `#1A6566` y Oro Viejo `#C28B00`. La ilustración es conceptual y está identificada como tal.
 
+## Empieza por aquí
+
+Lee [la guía para entender y explicar el proyecto](docs/GUIA_PARA_ENTENDER_EL_PROYECTO.md): estructura, recorrido de una reserva, calendario, estados y comandos de trabajo. La rama de esta reorganización es `refactor/codigo-claro-daw`.
+
 ## Qué incluye
 
 - Web pública adaptable a móvil: presentación, habitaciones de PostgreSQL, calendario mensual, selección de estancia, camas individuales o habitación completa, formulario y referencia de solicitud.
@@ -14,6 +18,12 @@ Aplicación DAW de Los Murlocs desarrollada en **DiegoPlana/PruebaProyecto**, a 
 
 No hay pagos, cuentas de visitantes ni correo real. Todos los administradores tienen el mismo rol en este incremento. Consulta los límites y siguientes tareas en [docs/ASTRA_PROGRESS.md](docs/ASTRA_PROGRESS.md).
 
+## Navegación multipágina
+
+Esta rama incorpora las ocho páginas independientes y el menú compartido. Para revisar esta entrega, usa `refactor/codigo-claro-daw` después del clonado. Consulta [rutas, archivos, comprobaciones e integración](docs/DESIGN_NAVIGATION.md).
+
+Para editar contenido o navegación, modifica `frontend/` y ejecuta `npm run build:pages`; `public/*.html` es la salida generada. `npm run check` detecta documentos desactualizados. No se añade un framework.
+
 ## Arranque con Docker (Linux, macOS o Windows con Docker Desktop)
 
 Necesitas Git y Docker con `docker compose`.
@@ -21,7 +31,7 @@ Necesitas Git y Docker con `docker compose`.
 ```bash
 git clone https://github.com/DiegoPlana/PruebaProyecto.git
 cd PruebaProyecto
-git switch feat/albergue-mvp
+git switch refactor/codigo-claro-daw
 cp .env.example .env
 ```
 
@@ -78,7 +88,7 @@ npm run check
 npm test
 ```
 
-Sin `RUN_DB_TESTS=true`, las pruebas de integración aparecen **SKIP**, no aprobadas. `npm test` por sí solo verifica únicamente la validación cuando no se configura PostgreSQL.
+Sin `RUN_DB_TESTS=true`, las pruebas de integración aparecen **SKIP**, no aprobadas. Sin PostgreSQL se verifican la validación, las rutas y la lógica de presentación; las pruebas de integración quedan pendientes.
 
 Para la suite completa, crea una **base de datos exclusiva y desechable**: los tests vacían sus tablas. No uses la base del desarrollo que quieras conservar ni producción.
 
@@ -98,11 +108,13 @@ El workflow [Pruebas PostgreSQL](.github/workflows/test.yml) crea PostgreSQL 17,
 
 ## Arquitectura
 
+- `src/admin-data.mjs`: consultas de lectura que rellenan el panel.
 - `src/server.mjs`: HTTP, API, cabeceras, archivos estáticos y autorización de rutas.
 - `src/booking.mjs`: inventario, disponibilidad, solicitudes, ocupación, bloqueos y transacciones.
 - `src/restaurant.mjs`: turnos, aforo y resolución de solicitudes.
 - `src/auth.mjs`: scrypt, sesiones, CSRF y límites de intentos persistentes.
 - `db/`: migraciones SQL. `scripts/`: migrar, datos ficticios, crear administrador y validar sintaxis.
+- `public/js/`: módulos separados para calendario, habitaciones, reservas, restaurante, solicitudes y presentación del panel.
 - `public/`: web y panel sin framework. `test/`: validación e integración.
 
 Documentación: [modelo y concurrencia](docs/ARCHITECTURE.md), [API](docs/API.md), [seguridad y despliegue](docs/OPERATIONS.md), [continuidad](docs/ASTRA_PROGRESS.md).

@@ -1,1 +1,136 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Privacidad y pruebas · Santa Quiteria</title><link rel="stylesheet" href="/style.css"></head><body><header class="header"><a class="brand" href="/">← Santa Quiteria</a></header><main class="section legal"><p class="eyebrow">ESTADO DEL PROYECTO</p><h1>Privacidad y<br>entorno de pruebas.</h1><p>Esta aplicación es un proyecto DAW en desarrollo. No es un canal operativo de reservas del establecimiento. Usa únicamente nombres y contactos ficticios.</p><h2>Qué guarda la aplicación</h2><p>Las solicitudes guardan nombre, apellidos, email, teléfono, fechas, plazas y observaciones en PostgreSQL. Los calendarios públicos solo muestran disponibilidad. El panel autenticado permite consultar las solicitudes. No se solicita DNI, no se cobran pagos y no se envían correos reales.</p><h2>Cookies</h2><p>El área del equipo utiliza una cookie de sesión técnica, HttpOnly y SameSite=Strict, de ocho horas. En producción requiere HTTPS y añade Secure. No hay cookies publicitarias ni analítica de terceros.</p><h2>Antes de utilizar datos reales</h2><p>El responsable del tratamiento debe validar su identidad y contacto, base jurídica, finalidades, plazos de conservación, destinatarios, encargados, procedimiento para ejercer derechos y los textos legales completos. Esta página no sustituye esa revisión ni certifica cumplimiento normativo.</p><p>Las ilustraciones son conceptuales. Los nombres y capacidades de las habitaciones de desarrollo no describen instalaciones verificadas. Dirección, servicios, precios, fotografías, turnos de restaurante y contactos oficiales deben confirmarse.</p><a class="button" href="/">Volver al inicio</a></main></body></html>
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Privacidad, datos de prueba y estado del proyecto Santa Quiteria."
+    />
+    <meta name="theme-color" content="#0B201F" />
+    <title>Privacidad y pruebas · Albergue Santa Quiteria</title>
+    <link rel="icon" href="/mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/pages.css" />
+    <script src="/navigation.js" type="module"></script>
+  </head>
+  <body class="public-site page-legal">
+    <a href="#main" class="skip">Saltar al contenido</a>
+    <div class="dev-banner">
+      PROYECTO EN DESARROLLO
+      <span>· Inventario provisional. No usar para reservas reales.</span>
+    </div>
+    <header class="header site-header">
+      <a class="brand" href="/" aria-label="Santa Quiteria, inicio">
+        <img src="/mark.svg" alt="" width="44" height="44" />
+        <span>
+          SANTA QUITERIA
+          <small>ALBERGUE · ALMASSORA</small>
+        </span>
+      </a>
+      <button
+        id="menu-toggle"
+        class="menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="navigation"
+      >
+        <span>Menú</span>
+        <span aria-hidden="true">☰</span>
+      </button>
+      <nav id="navigation" aria-label="Principal">
+        <a href="/">Inicio</a>
+        <a href="/albergue">El albergue</a>
+        <a href="/habitaciones">Habitaciones</a>
+        <a href="/restaurante">Restaurante</a>
+        <a href="/servicios">Servicios</a>
+        <a href="/galeria">Galería</a>
+        <a href="/contacto">Contacto</a>
+        <a href="/reservas" class="button small">Reservas</a>
+      </nav>
+    </header>
+    <main id="main" tabindex="-1" class="section legal">
+      <nav class="breadcrumb" aria-label="Ruta de navegación">
+        <a href="/">Inicio</a>
+        <span aria-hidden="true">/</span>
+        <span>Privacidad y pruebas</span>
+      </nav>
+      <p class="eyebrow">ESTADO DEL PROYECTO</p>
+      <h1>
+        Privacidad y
+        <br />
+        entorno de pruebas.
+      </h1>
+      <p>
+        Esta aplicación es un proyecto DAW en desarrollo. No es un canal operativo de reservas del
+        establecimiento. Usa únicamente nombres y contactos ficticios.
+      </p>
+      <h2>Qué guarda la aplicación</h2>
+      <p>
+        Las solicitudes guardan nombre, apellidos, email, teléfono, fechas, plazas y observaciones
+        en PostgreSQL. Los calendarios públicos solo muestran disponibilidad. El panel autenticado
+        permite consultar las solicitudes. No se solicita DNI, no se cobran pagos y no se envían
+        correos reales.
+      </p>
+      <h2>Cookies</h2>
+      <p>
+        El área del equipo utiliza una cookie de sesión técnica, HttpOnly y SameSite=Strict, de ocho
+        horas. En producción requiere HTTPS y añade Secure. No hay cookies publicitarias ni
+        analítica de terceros.
+      </p>
+      <h2>Antes de utilizar datos reales</h2>
+      <p>
+        El responsable del tratamiento debe validar su identidad y contacto, base jurídica,
+        finalidades, plazos de conservación, destinatarios, encargados, procedimiento para ejercer
+        derechos y los textos legales completos. Esta página no sustituye esa revisión ni certifica
+        cumplimiento normativo.
+      </p>
+      <p>
+        Las ilustraciones son conceptuales. Los nombres y capacidades de las habitaciones de
+        desarrollo no describen instalaciones verificadas. Dirección, servicios, precios,
+        fotografías, turnos de restaurante y contactos oficiales deben confirmarse.
+      </p>
+      <a class="button" href="/">Volver al inicio</a>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-intro">
+        <a class="brand" href="/">
+          <img src="/mark.svg" alt="" width="40" height="40" />
+          <span>
+            SANTA QUITERIA
+            <small>ALBERGUE · ALMASSORA</small>
+          </span>
+        </a>
+        <p>
+          Un lugar para bajar el ritmo.
+          <br />
+          <small>Proyecto DAW · Los Murlocs</small>
+        </p>
+      </div>
+      <nav class="footer-navigation" aria-label="Explorar">
+        <a href="/">Inicio</a>
+        <a href="/albergue">El albergue</a>
+        <a href="/habitaciones">Habitaciones</a>
+        <a href="/restaurante">Restaurante</a>
+        <a href="/servicios">Servicios</a>
+        <a href="/galeria">Galería</a>
+        <a href="/contacto">Contacto</a>
+        <a href="/reservas">Reservas</a>
+      </nav>
+      <div class="footer-meta">
+        <a href="/legal.html">Privacidad y estado del proyecto</a>
+        <a href="/admin">
+          Acceso del equipo
+          <span aria-hidden="true">↗</span>
+        </a>
+        <p class="fine">
+          Contenido y fotografías oficiales
+          <br />
+          pendientes de confirmación.
+        </p>
+      </div>
+    </footer>
+
+    <div id="toast" role="status" class="toast" hidden></div>
+  </body>
+</html>
